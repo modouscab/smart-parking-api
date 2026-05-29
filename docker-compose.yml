@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: parking-postgres
+    environment:
+      POSTGRES_DB: parkingdb
+      POSTGRES_USER: parking
+      POSTGRES_PASSWORD: parking
+    ports:
+      - "5432:5432"
+
+  parking-api:
+    build: .
+    container_name: parking-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/parkingdb
+      SPRING_DATASOURCE_USERNAME: parking
+      SPRING_DATASOURCE_PASSWORD: parking

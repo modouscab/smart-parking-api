@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parking-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: parking-api
+  template:
+    metadata:
+      labels:
+        app: parking-api
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -U parking -d parkingdb; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+      containers:
+        - name: parking-api
+          image: smart-parking-api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/parkingdb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: parking
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: parking
