@@ -31,6 +31,7 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
+      #note that the 3 next commands (clean compile, test and package) can be replaced by ./mvnw clean verify
       - name: Compile
         run: ./mvnw clean compile
 
@@ -45,3 +46,25 @@ jobs:
         with:
           name: smart-parking-api
           path: target/*.jar
+
+      # -----------------------------
+      # Docker
+      # -----------------------------
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/smart-parking-api:latest
+            ${{ secrets.DOCKER_USERNAME }}/smart-parking-api:${{ github.sha }}
