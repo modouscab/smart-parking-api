@@ -68,3 +68,39 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/smart-parking-api:latest
             ${{ secrets.DOCKER_USERNAME }}/smart-parking-api:${{ github.sha }}
+
+      - name: Trigger Infrastructure Deployment
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.INFRA_REPO_TOKEN }}" \
+            https://api.github.com/repos/modouscab/smart-parking-infra/dispatches \
+            -d '{
+              "event_type":"deploy-parking-api",
+              "client_payload":{
+                "imageTag":"latest"
+              }
+            }'
+
+  # deploy:
+
+  #   needs: build
+
+  #   runs-on:
+  #     - self-hosted
+  #     - macOS
+
+  #   steps:
+
+  #     - name: Deploy with Helm
+  #       run: |
+  #         helm upgrade \
+  #           --install smart-parking-api \
+  #           /CHEMIN/VERS/smart-parking-infra/helm/smart-parking-api \
+  #           --set image.repository=${{ secrets.DOCKER_USERNAME }}/smart-parking-api \
+  #           --set image.tag=${{ github.sha }} \
+  #           --set image.pullPolicy=IfNotPresent
+
+  #     - name: Wait for Rollout
+  #       run: |
+  #         kubectl rollout status deployment/smart-parking-api --timeout=180s
