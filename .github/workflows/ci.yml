@@ -56,7 +56,7 @@ jobs:
 
       - name: SonarQube Analysis
         env:
-          SONAR_TOKEN: {{$ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./mvnw sonar:sonar \
             -Dsonar.projectKey=modouscab_smart-parking-api \
