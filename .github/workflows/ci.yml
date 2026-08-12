@@ -20,6 +20,8 @@ jobs:
 
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # - name: Compute Image Tag
       #   run: |
@@ -36,14 +38,31 @@ jobs:
         run: chmod +x mvnw
 
       #note that the 3 next commands (clean compile, test and package) can be replaced by ./mvnw clean verify
-      - name: Compile
-        run: ./mvnw clean compile
+      #- name: Compile
+      #  run: ./mvnw clean compile
 
-      - name: Run Unit Tests
-        run: ./mvnw test
+      #- name: Run Unit Tests
+      #  run: ./mvnw test
 
-      - name: Package application
-        run: ./mvnw package -DskipTests
+      #- name: Package application
+      #  run: ./mvnw package -DskipTests
+
+      - name: Build and test
+        run: ./mvnw clean verify
+
+      # -----------------------------
+      # SonarQube
+      # -----------------------------
+
+      - name: SonarQube Analysis
+        env:
+          SONAR_TOKEN: {{$ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw sonar:sonar \
+            -Dsonar.projectKey=modouscab_smart-parking-api \
+            -Dsonar.organization=modouscab \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=$SONAR_TOKEN
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
@@ -85,26 +104,3 @@ jobs:
                 "imageTag":"${{ github.sha }}"
               }
             }'
-
-  # deploy:
-
-  #   needs: build
-
-  #   runs-on:
-  #     - self-hosted
-  #     - macOS
-
-  #   steps:
-
-  #     - name: Deploy with Helm
-  #       run: |
-  #         helm upgrade \
-  #           --install smart-parking-api \
-  #           /CHEMIN/VERS/smart-parking-infra/helm/smart-parking-api \
-  #           --set image.repository=${{ secrets.DOCKER_USERNAME }}/smart-parking-api \
-  #           --set image.tag=${{ github.sha }} \
-  #           --set image.pullPolicy=IfNotPresent
-
-  #     - name: Wait for Rollout
-  #       run: |
-  #         kubectl rollout status deployment/smart-parking-api --timeout=180s
