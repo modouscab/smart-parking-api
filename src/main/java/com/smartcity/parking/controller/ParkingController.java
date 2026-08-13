@@ -1,6 +1,7 @@
 package com.smartcity.parking.controller;
 
-import com.smartcity.parking.entity.Parking;
+import com.smartcity.parking.dto.ParkingRequest;
+import com.smartcity.parking.dto.ParkingResponse;
 import com.smartcity.parking.service.ParkingService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +18,20 @@ public class ParkingController {
     }
 
     @GetMapping
-    public List<Parking> getAll() {
+    public List<ParkingResponse> getAll() {
         return service.getAllParkings();
     }
 
     @PostMapping
-    public Parking create(@RequestBody Parking parking) {
-        return service.save(parking);
+    public ParkingResponse create(@RequestBody ParkingRequest request) {
+        return service.save(request);
     }
+
     @GetMapping("/{id}")
-    public Parking getParkingById(@PathVariable Long id) {
+    public ParkingResponse getParkingById(@PathVariable Long id) {
         return service.getParkingById(id);
     }
+
     @DeleteMapping("/{id}")
     public void deleteParking(@PathVariable Long id) {
         service.deleteParking(id);
